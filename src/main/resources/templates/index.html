@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GravityLaunchOptimizer V2</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; background: #0d1117; color: #e6edf3; }
+        .container { max-width: 1200px; margin: auto; padding: 28px; }
+        h1 { margin-bottom: 4px; }
+        .subtitle { color: #8b949e; margin-top: 0; }
+        .panel { background: #161b22; border: 1px solid #30363d; border-radius: 14px; padding: 20px; margin: 18px 0; }
+        .controls { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+        label { display: block; color: #8b949e; margin-bottom: 7px; }
+        input, select, button { width: 100%; box-sizing: border-box; padding: 11px; border-radius: 8px; border: 1px solid #30363d; background: #0d1117; color: #e6edf3; }
+        button { cursor: pointer; background: #238636; border-color: #238636; font-weight: bold; }
+        .cards { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; }
+        .card { background: #0d1117; border: 1px solid #30363d; border-radius: 10px; padding: 16px; }
+        .value { font-size: 1.35rem; font-weight: bold; margin-top: 5px; }
+        .graph-wrap { overflow-x: auto; }
+        svg { background: #0b0f14; border: 1px solid #30363d; border-radius: 10px; min-width: 760px; width: 100%; height: 430px; }
+        .axis { stroke: #586069; stroke-width: 1; }
+        .trajectory { fill: none; stroke: #58a6ff; stroke-width: 3; }
+        .vehicle { fill: #f0883e; }
+        .note { color: #8b949e; font-size: 0.9rem; line-height: 1.5; }
+        .status { font-weight: bold; }
+        @media (max-width: 850px) {
+            .controls, .cards { grid-template-columns: 1fr 1fr; }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>GravityLaunchOptimizer V2 🚀</h1>
+    <p class="subtitle">Physics Engine Upgrade: Variable Gravity</p>
+
+    <div class="panel">
+        <form action="/simulate" method="get">
+            <div class="controls">
+                <div>
+                    <label>Planet</label>
+                    <select name="planet">
+                        <option th:each="p : ${planets}" th:value="${p}" th:text="${p}"
+                                th:selected="${p == selectedPlanet}"></option>
+                    </select>
+                </div>
+                <div>
+                    <label>Initial altitude (m)</label>
+                    <input type="number" name="altitude" step="any" min="0" th:value="${altitude}">
+                </div>
+                <div>
+                    <label>Initial velocity (m/s)</label>
+                    <input type="number" name="velocity" step="any" min="0" th:value="${velocity}">
+                </div>
+                <div>
+                    <label>Launch angle (degrees)</label>
+                    <input type="number" name="angle" step="any" min="0" max="90" th:value="${angle}">
+                </div>
+            </div>
+            <br>
+            <button type="submit">Run V2 Simulation</button>
+        </form>
+    </div>
+
+    <div class="panel" th:if="${hasResult}">
+        <h2>Simulation Results</h2>
+        <div class="cards">
+            <div class="card"><div>Max Height</div><div class="value" th:text="${#numbers.formatDecimal(result.maxHeight, 1, 2)} + ' m'"></div></div>
+            <div class="card"><div>Range</div><div class="value" th:text="${#numbers.formatDecimal(result.range, 1, 2)} + ' m'"></div></div>
+            <div class="card"><div>Flight Time</div><div class="value" th:text="${#numbers.formatDecimal(result.flightTime, 1, 2)} + ' s'"></div></div>
+            <div class="card"><div>Initial Gravity</div><div class="value" th:text="${#numbers.formatDecimal(result.initialGravity, 1, 4)} + ' m/s²'"></div></div>
+            <div class="card"><div>Final Gravity</div><div class="value" th:text="${#numbers.formatDecimal(result.finalGravity, 1, 4)} + ' m/s²'"></div></div>
+        </div>
+    </div>
+
+    <div class="panel" th:if="${hasResult}">
+        <h2>Variable-Gravity Trajectory</h2>
+        <p class="note">
+            Gravity is recalculated at every simulation step using
+            <strong>g(h) = GM / (R + h)²</strong>.
+            The current model remains a local 2D ballistic approximation.
+        </p>
+
+        <div class="graph-wrap">
+            <svg id="trajectoryGraph" viewBox="0 0 1000 500" preserveAspectRatio="none">
+                <line class="axis" x1="70" y1="440" x2="960" y2="440"></line>
+                <line class="axis" x1="70" y1="30" x2="70" y2="440"></line>
+                <path id="trajectoryPath" class="trajectory"></path>
+                <circle id="vehicle" class="vehicle" r="8" cx="70" cy="440"></circle>
+            </svg>
+        </div>
+
+        <p>
+            <span class="status">Animation time:</span>
+            <span id="simTime">0.0 s</span>
+        </p>
+        <button type="button" onclick="replay()">Replay Trajectory</button>
+    </div>
+
+    <div class="panel">
+        <h2>V2 Physics Status</h2>
+        <p class="note">
+            <strong>Implemented:</strong> variable gravity + gravity telemetry.<br>
+            <strong>Next:</strong> atmospheric density, aerodynamic drag, velocity/acceleration telemetry and validation tests.
+        </p>
+    </div>
+</div>
+
+<script th:inline="javascript">
+    const trajectory = /*[[${trajectoryJson}]]*/ '[]';
+    const points = JSON.parse(trajectory);
+
+    function drawTrajectory() {
+        if (!points.length) return;
+
+        const svgWidth = 1000, svgHeight = 500;
+        const left = 70, right = 960, top = 30, bottom = 440;
+        const maxX = Math.max(...points.map(p => p.x), 1);
+        const maxY = Math.max(...points.map(p => p.y), 1);
+
+        const coords = points.map(p => ({
+            x: left + (p.x / maxX) * (right - left),
+            y: bottom - (p.y / maxY) * (bottom - top)
+        }));
+
+        const path = coords.map((p, i) => (i === 0 ? 'M' : 'L') + ` ${p.x} ${p.y}`).join(' ');
+        document.getElementById('trajectoryPath').setAttribute('d', path);
+
+        window.gravityLaunchTrajectory = { points, coords };
+        replay();
+    }
+
+    function replay() {
+        if (!window.gravityLaunchTrajectory) return;
+
+        const { points, coords } = window.gravityLaunchTrajectory;
+        let i = 0;
+        const vehicle = document.getElementById('vehicle');
+        const timeLabel = document.getElementById('simTime');
+
+        function step() {
+            if (i >= coords.length) {
+                i = 0;
+            }
+
+            vehicle.setAttribute('cx', coords[i].x);
+            vehicle.setAttribute('cy', coords[i].y);
+            timeLabel.textContent = points[i].time.toFixed(1) + ' s';
+
+            i++;
+            window.animationTimer = setTimeout(step, 45);
+        }
+
+        clearTimeout(window.animationTimer);
+        step();
+    }
+
+    drawTrajectory();
+</script>
+</body>
+</html>

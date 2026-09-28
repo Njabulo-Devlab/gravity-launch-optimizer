@@ -1,23 +1,34 @@
-Version 0.1
-- Project structure
-- GitHub setup
+# GravityLaunchOptimizer Roadmap
 
-Version 0.2
-- Planet class
-- Gravity calculations
+## V1 - Interactive ballistic simulator
+- Java physics engine
+- Spring Boot web application
+- Planet selection
+- Trajectory graph
+- Animation
 
-Version 0.3
-- Atmospheric drag
+## V2 - Physics Engine Upgrade
+- [x] Variable gravity
+- [x] Gravity telemetry
+- [ ] Atmospheric density
+- [ ] Aerodynamic drag
+- [ ] Velocity and acceleration telemetry
+- [ ] Physics validation tests
 
-Version 0.4
-- Trajectory simulation
+## V3 - Aerospace Analysis
+- Scenario comparison
+- Orbital velocity
+- Escape velocity
+- Energy analysis
+- Improved planetary models
 
-Version 0.5
-- Optimization engine
+## V4 - Optimization
+- Parameter sweeps
+- Objective functions
+- Constraints
+- Automated search/optimization
+- Advanced dashboard
 
-Version 0.6
-- Scoring and ranking system
+## Long-term direction
 
-Version 1.0
-- JavaFX interface
-- Visualization
+Educational aerospace simulation and optimization platform.
