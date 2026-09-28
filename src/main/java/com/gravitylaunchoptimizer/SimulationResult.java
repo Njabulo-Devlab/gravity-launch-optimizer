@@ -1,47 +1,7 @@
 package com.gravitylaunchoptimizer;
-
 import java.util.List;
-
 public class SimulationResult {
-    private final double maxHeight;
-    private final double range;
-    private final double flightTime;
-    private final double initialGravity;
-    private final double finalGravity;
-    private final List<TrajectoryPoint> trajectory;
-
-    public SimulationResult(double maxHeight, double range, double flightTime,
-                            double initialGravity, double finalGravity,
-                            List<TrajectoryPoint> trajectory) {
-        this.maxHeight = maxHeight;
-        this.range = range;
-        this.flightTime = flightTime;
-        this.initialGravity = initialGravity;
-        this.finalGravity = finalGravity;
-        this.trajectory = trajectory;
-    }
-
-    public double getMaxHeight() {
-        return maxHeight;
-    }
-
-    public double getRange() {
-        return range;
-    }
-
-    public double getFlightTime() {
-        return flightTime;
-    }
-
-    public double getInitialGravity() {
-        return initialGravity;
-    }
-
-    public double getFinalGravity() {
-        return finalGravity;
-    }
-
-    public List<TrajectoryPoint> getTrajectory() {
-        return trajectory;
-    }
+ private final double maxHeight,range,flightTime,initialGravity,finalGravity,maxSpeed,maxDragForce,maxDragAcceleration; private final List<TrajectoryPoint> trajectory;
+ public SimulationResult(double maxHeight,double range,double flightTime,double initialGravity,double finalGravity,double maxSpeed,double maxDragForce,double maxDragAcceleration,List<TrajectoryPoint> trajectory){this.maxHeight=maxHeight;this.range=range;this.flightTime=flightTime;this.initialGravity=initialGravity;this.finalGravity=finalGravity;this.maxSpeed=maxSpeed;this.maxDragForce=maxDragForce;this.maxDragAcceleration=maxDragAcceleration;this.trajectory=trajectory;}
+ public double getMaxHeight(){return maxHeight;} public double getRange(){return range;} public double getFlightTime(){return flightTime;} public double getInitialGravity(){return initialGravity;} public double getFinalGravity(){return finalGravity;} public double getMaxSpeed(){return maxSpeed;} public double getMaxDragForce(){return maxDragForce;} public double getMaxDragAcceleration(){return maxDragAcceleration;} public List<TrajectoryPoint> getTrajectory(){return trajectory;}
 }

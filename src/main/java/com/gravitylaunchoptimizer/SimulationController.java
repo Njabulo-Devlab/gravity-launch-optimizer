@@ -1,51 +1,10 @@
 package com.gravitylaunchoptimizer;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-
-@Controller
-public class SimulationController {
-
-    private final GravityCalculator calculator = new GravityCalculator();
-    private final ObjectMapper objectMapper = new ObjectMapper();
-
-    @GetMapping("/")
-    public String home(Model model) throws JsonProcessingException {
-        model.addAttribute("planets", PlanetDatabase.getPlanets().keySet());
-        model.addAttribute("selectedPlanet", "Earth");
-        model.addAttribute("altitude", 10000.0);
-        model.addAttribute("velocity", 300.0);
-        model.addAttribute("angle", 45.0);
-        model.addAttribute("hasResult", false);
-        model.addAttribute("trajectoryJson", "[]");
-        return "index";
-    }
-
-    @GetMapping("/simulate")
-    public String simulate(
-            @RequestParam String planet,
-            @RequestParam double altitude,
-            @RequestParam double velocity,
-            @RequestParam double angle,
-            Model model) throws JsonProcessingException {
-
-        Planet selectedPlanet = PlanetDatabase.get(planet);
-        SimulationResult result =
-                calculator.simulateFlight(selectedPlanet, altitude, velocity, angle);
-
-        model.addAttribute("planets", PlanetDatabase.getPlanets().keySet());
-        model.addAttribute("selectedPlanet", planet);
-        model.addAttribute("altitude", altitude);
-        model.addAttribute("velocity", velocity);
-        model.addAttribute("angle", angle);
-        model.addAttribute("hasResult", true);
-        model.addAttribute("result", result);
-        model.addAttribute("trajectoryJson", objectMapper.writeValueAsString(result.getTrajectory()));
-
-        return "index";
-    }
+import com.fasterxml.jackson.core.JsonProcessingException;import com.fasterxml.jackson.databind.ObjectMapper;import org.springframework.stereotype.Controller;import org.springframework.ui.Model;import org.springframework.web.bind.annotation.GetMapping;import org.springframework.web.bind.annotation.RequestParam;
+@Controller public class SimulationController {
+ private final GravityCalculator calculator=new GravityCalculator();private final ObjectMapper mapper=new ObjectMapper();
+ @GetMapping("/") public String home(Model m)throws JsonProcessingException{m.addAttribute("planets",PlanetDatabase.getPlanets().keySet());m.addAttribute("selectedPlanet","Earth");m.addAttribute("altitude",10000.0);m.addAttribute("velocity",300.0);m.addAttribute("angle",45.0);m.addAttribute("mass",100.0);m.addAttribute("cd",0.5);m.addAttribute("area",1.0);m.addAttribute("hasResult",false);m.addAttribute("trajectoryJson","[]");return "index";}
+ @GetMapping("/simulate") public String simulate(@RequestParam String planet,@RequestParam double altitude,@RequestParam double velocity,@RequestParam double angle,@RequestParam double mass,@RequestParam double cd,@RequestParam double area,Model m)throws JsonProcessingException{
+  SimulationResult r=calculator.simulateFlight(PlanetDatabase.get(planet),altitude,velocity,angle,mass,cd,area);
+  m.addAttribute("planets",PlanetDatabase.getPlanets().keySet());m.addAttribute("selectedPlanet",planet);m.addAttribute("altitude",altitude);m.addAttribute("velocity",velocity);m.addAttribute("angle",angle);m.addAttribute("mass",mass);m.addAttribute("cd",cd);m.addAttribute("area",area);m.addAttribute("hasResult",true);m.addAttribute("result",r);m.addAttribute("trajectoryJson",mapper.writeValueAsString(r.getTrajectory()));return "index";
+ }
 }

@@ -1,52 +1,36 @@
-# GravityLaunchOptimizer V2
+# GravityLaunchOptimizer V2.1
 
-An educational aerospace trajectory simulation platform built with Java, Spring Boot and Thymeleaf.
+## Mission: Atmosphere & Aerodynamic Drag
 
-## V2 focus: Variable Gravity
+V2.1 extends the variable-gravity engine with a simple atmospheric model and aerodynamic drag.
 
-Version 2 upgrades the original constant-gravity model. Gravity is recalculated at every simulation step using:
+Atmospheric density:
+rho(h) = rho0 * exp(-h / H)
 
-g(h) = GM / (R + h)^2
+Drag force:
+Fd = 0.5 * rho * Cd * A * v^2
 
-where:
-- G = universal gravitational constant
-- M = planetary mass
-- R = planetary radius
-- h = current altitude above the surface
+Drag acceleration:
+ad = Fd / m
 
-The simulator also records gravity as part of trajectory telemetry.
+Drag acts opposite to the velocity vector and therefore affects horizontal and vertical velocity.
 
-## Current features
+### Vehicle parameters
+- Mass (kg)
+- Drag coefficient Cd
+- Reference area (m²)
 
-- Earth, Mars and Moon models
-- Initial altitude, velocity and launch angle
-- Variable gravity throughout the flight
-- Maximum altitude
-- Horizontal range
-- Flight time
-- Trajectory data
-- Gravity telemetry
-- Interactive SVG trajectory graph
-- Animated vehicle replay
+Defaults: 100 kg, Cd 0.5, area 1.0 m².
 
-## Important model limitation
+### Telemetry
+Time, horizontal position, altitude, speed, acceleration magnitude, gravity, air density, drag force, and drag acceleration.
 
-This is an educational simulation, not an engineering-grade flight model. The current trajectory model is still a local 2D ballistic approximation and does not yet include atmospheric density, aerodynamic drag, planetary rotation, or full orbital mechanics.
+### Limitation
+Educational local 2D model. It does not yet include wind, temperature-layer atmosphere, Mach-dependent Cd, lift, planetary rotation, or full orbital mechanics.
 
-## Run
+Run `GravityLaunchOptimizerApplication.java` with JDK 25, then open http://localhost:8080.
 
-1. Open the project in IntelliJ IDEA.
-2. Use JDK 25.
-3. Allow Maven to download dependencies.
-4. Run:
-   `GravityLaunchOptimizerApplication.java`
-5. Open:
-   `http://localhost:8080`
-
-## Git
-
-Suggested commit:
-
-git add .
-git commit -m "Upgrade physics engine to variable gravity"
-git push
+Suggested Git commit:
+`git add .`
+`git commit -m "Add atmosphere and aerodynamic drag"`
+`git push`
